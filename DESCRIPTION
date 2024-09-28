@@ -1,0 +1,13 @@
+Package: readUpBank
+Title: Read Up Bank API
+Version: 0.0.0.9000
+Authors@R: 
+    person("Karl", "Sparks", , "karl@sparks.to", role = c("aut", "cre"))
+Description: An unofficial R package to access Australian Bank Up's API. 
+License: MIT + file LICENSE
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
