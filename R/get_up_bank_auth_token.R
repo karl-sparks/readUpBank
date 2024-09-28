@@ -5,7 +5,7 @@
 #'   2. Sys environment
 #'   3. .env file
 #'
-#'  It will throw an error if no
+#'  `get_up_bank_auth_token()` will throw an error if the token hasn't been set up.
 #'
 #' @param call
 #'

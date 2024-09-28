@@ -2,12 +2,15 @@
 % Please edit documentation in R/get_up_bank_auth_token.R
 \name{get_up_bank_auth_token}
 \alias{get_up_bank_auth_token}
+\alias{get_up_bank_auth_token_from_sys_env}
 \alias{get_up_bank_auth_token_from_dotenv}
-\title{Get UP Bank auth token}
+\title{Get UP Bank Auth token}
 \usage{
 get_up_bank_auth_token(call = rlang::caller_env())
 
-get_up_bank_auth_token_from_dotenv(call = rlang::caller_env())
+get_up_bank_auth_token_from_sys_env()
+
+get_up_bank_auth_token_from_dotenv()
 }
 \arguments{
 \item{call}{}
@@ -16,12 +19,13 @@ get_up_bank_auth_token_from_dotenv(call = rlang::caller_env())
 UP Bank Auth Token
 }
 \description{
-Will retrieve the auth token. It will get it from the following places:
+Will retrieve the auth token called \code{UP_TOKEN}. It will look for the token from the following places in order:
 \enumerate{
+\item R Option
 \item Sys environment
 \item .env file
 }
 }
 \details{
-It will throw an error if no
+\code{get_up_bank_auth_token()} will throw an error if the token hasn't been set up.
 }
