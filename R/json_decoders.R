@@ -1,7 +1,15 @@
-json_decoder <- function(res_json) {
+#' Decode Json
+#'
+#'  These functions decode the response json from a range of Up Bank API end points. It uses S3 to determine which decoder to use.
+#'
+#' @param res response from the up bank API
+#'
+#' @return tibble containing the contents of the response json.
+json_decoder <- function(res) {
   UseMethod("json_decoder")
 }
 
+#' @exportS3Method readUpBank::json_decoder
 json_decoder.accounts <- function(res) {
   json_data <- httr2::resp_body_json(res)$data
 
@@ -23,6 +31,8 @@ json_decoder.accounts <- function(res) {
     format_accounts_tibble()
 }
 
+
+#' @exportS3Method readUpBank::json_decoder
 json_decoder.accounts_id <- function(res) {
   json_data <- httr2::resp_body_json(res)$data
 

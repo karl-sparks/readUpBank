@@ -1,8 +1,10 @@
 #' Read Up Accounts
 #'
-#'  This function is used to extract accounts data from the Up Bank API. It has one optional
+#'  This function is used to extract accounts data from the Up Bank API. It has three optional parameters that can be used to filter the query that is sent to the Up Bank API.
 #'
 #' @param account_id Optional; account_id to request from API. If its not provided the function will return all accounts for the authenticated user.
+#' @param account_type Optional; account_type to filter request. It must be one of 'SAVER', 'TRANSACTIONAL' or 'HOME_LOAN'
+#' @param ownership_type Optional; ownership_type to filter request. It most be one of 'INDIVIDUAL' or 'JOINT'
 #'
 #' @return `tibble::tibble()` containing the requested accounts data
 #' @export
