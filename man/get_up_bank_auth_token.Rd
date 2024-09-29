@@ -13,7 +13,7 @@ get_up_bank_auth_token_from_sys_env()
 get_up_bank_auth_token_from_dotenv()
 }
 \arguments{
-\item{call}{}
+\item{call}{pass the caller environment to make error messages more informative}
 }
 \value{
 UP Bank Auth Token

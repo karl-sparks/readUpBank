@@ -5,18 +5,15 @@
 #'   2. Sys environment
 #'   3. .env file
 #'
-#'  `get_up_bank_auth_token()` will throw an error if the token hasn't been set up.
-#'
-#' @param call
+#'  `get_up_bank_auth_token()` will display a warning if the token hasn't been set up.
 #'
 #' @return UP Bank Auth Token
-get_up_bank_auth_token <- function(call = rlang::caller_env()) {
+get_up_bank_auth_token <- function() {
   token <- getOption("UP_TOKEN", default = get_up_bank_auth_token_from_sys_env())
 
   if (token == "") {
-    cli::cli_abort(
-      "Can not find UP Bank authentication token. Set up a .env or environment variable with the token saved as: `UP_TOKEN`",
-      call = call
+    cli::cli_warn(
+      "Can not find UP Bank authentication token. Set up a .env or environment variable with the token saved as: `UP_TOKEN`"
     )
   }
 

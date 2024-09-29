@@ -1,5 +1,5 @@
 test_that("get_up_bank_auth_token works", {
-  expect_error(
+  expect_warning(
     get_up_bank_auth_token()
   )
 

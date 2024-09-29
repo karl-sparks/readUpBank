@@ -71,7 +71,7 @@ format_accounts_tibble <- function(processed_json) {
   var_to_drop <- c("link_to_transactions", "link_to_self")
 
   processed_json |>
-    setNames(var_names) |>
+    stats::setNames(var_names) |>
     dplyr::mutate(
       dplyr::across(
         dplyr::all_of(var_datatimes),

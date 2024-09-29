@@ -34,7 +34,7 @@ process_response <- function(res) {
   pre_results <- NULL
   if (!is.null(next_link)) {
     pre_results <-
-      get_base_request(base_url = next_link, paths = class(next_res)[-1]) |>
+      get_base_request(base_url = next_link, paths = class(res)[-1]) |>
       query_up_api() |>
       process_response()
   }
@@ -53,7 +53,7 @@ process_failed_response <- function(res, call = rlang::caller_env()) {
       401 ~ "Not authorized: The request was not authenticated.",
       404 ~ "Not found: Either the endpoint does not exist, or the requested resource does not exist.",
       422 ~ "Invalid request: The request contains invalid data and was not processed.",
-      429 ~ "Too many requests: You have been rate limited—try later, ideally with exponential backoff.",
+      429 ~ "Too many requests: You have been rate limited-try later, ideally with exponential backoff.",
       c(500, 502, 503, 504) ~ "Server-side errors: Try again later.",
       .default = "Unknown error"
     )
