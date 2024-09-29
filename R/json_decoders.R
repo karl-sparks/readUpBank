@@ -31,7 +31,6 @@ json_decoder.accounts <- function(res) {
     format_accounts_tibble()
 }
 
-
 #' @exportS3Method readUpBank::json_decoder
 json_decoder.accounts_id <- function(res) {
   json_data <- httr2::resp_body_json(res)$data
@@ -50,7 +49,6 @@ json_decoder.accounts_id <- function(res) {
   flatten_json |>
     format_accounts_tibble()
 }
-
 
 format_accounts_tibble <- function(processed_json) {
   var_names <- c(
@@ -83,4 +81,31 @@ format_accounts_tibble <- function(processed_json) {
       )
     ) |>
     dplyr::select(-dplyr::all_of(var_to_drop))
+}
+
+
+#' @exportS3Method readUpBank::json_decoder
+json_decoder.transactions <- function(res) {
+  json_data <- httr2::resp_body_json(res)$data
+
+  flatten_json <- tibble::tibble(!!!1:11, .rows = 0)
+
+  if (length(json_data) > 1) {
+    flatten_json <-
+      purrr::map(
+        json_data,
+        \(x)  purrr::list_flatten(x) |>
+          purrr::list_flatten() |>
+          purrr::list_flatten() |>
+          dplyr::bind_cols()
+      ) |>
+      purrr::list_rbind()
+  }
+
+  flatten_json |>
+    format_transactions_tibble()
+}
+
+format_transactions_tibble <- function(processed_json) {
+
 }

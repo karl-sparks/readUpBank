@@ -3,7 +3,8 @@ pkg_env <- new.env(parent = emptyenv())
 
 get_base_request <- function(base_url = "https://api.up.com.au/api/v1", paths = NULL) {
   httr2::request(base_url) |>
-    httr2::req_headers(Authorization = paste0("Bearer ", get_up_bank_auth_token()))
+    httr2::req_headers(Authorization = paste0("Bearer ", get_up_bank_auth_token())) |>
+    httr2::req_url_query(`page[size]` = 100)
 }
 
 add_path_to_req <- function(req, path, path_class = path) {
@@ -24,19 +25,22 @@ query_up_api <- function(req) {
   structure(res, class = c(class(res), paths))
 }
 
-process_response <- function(res) {
+process_response <- function(res, num_records = 0) {
   if (!(httr2::resp_status(res) %in% c(200, 201, 204))) {
     process_failed_response(res)
   }
 
   next_link <- httr2::resp_body_json(res)$links$`next`
+  records_loaded <- httr2::resp_body_json(res)$data |> length()
 
   pre_results <- NULL
   if (!is.null(next_link)) {
+    msg_str <- format((records_loaded + num_records), big.mark = ",")
+    cli::cli_progress_message("~{msg_str} records retrieved from API")
     pre_results <-
       get_base_request(base_url = next_link, paths = class(res)[-1]) |>
       query_up_api() |>
-      process_response()
+      process_response(records_loaded + num_records)
   }
 
   dplyr::bind_rows(
