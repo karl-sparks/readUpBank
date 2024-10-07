@@ -21,11 +21,11 @@ read_up_transactions <- function(transaction_id = NULL, status = c("HELD", "SETT
   req <- get_base_request() |>
     httr2::req_url_path_append("transactions")
 
-  endpoint <- "/transactions"
+  transaction_endpoint <- "/transactions"
 
   if (!missing(transaction_id)) {
     req <- httr2::req_url_path_append(req, transaction_id)
-    endpoint <- "/transactions/{id}"
+    transaction_endpoint  <- "/transactions/{id}"
   }
 
   if (!missing(status)) {
@@ -44,7 +44,7 @@ read_up_transactions <- function(transaction_id = NULL, status = c("HELD", "SETT
 
   spec <- api_specs |>
     dplyr::filter(
-      endpoint == endpoint,
+      endpoint == transaction_endpoint,
       operation == "get"
     ) |>
     dplyr::pull(spec) |>
