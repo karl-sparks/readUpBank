@@ -6,14 +6,11 @@
 \alias{get_up_bank_auth_token_from_dotenv}
 \title{Get UP Bank Auth token}
 \usage{
-get_up_bank_auth_token(call = rlang::caller_env())
+get_up_bank_auth_token()
 
 get_up_bank_auth_token_from_sys_env()
 
 get_up_bank_auth_token_from_dotenv()
-}
-\arguments{
-\item{call}{pass the caller environment to make error messages more informative}
 }
 \value{
 UP Bank Auth Token
@@ -27,5 +24,5 @@ Will retrieve the auth token called \code{UP_TOKEN}. It will look for the token 
 }
 }
 \details{
-\code{get_up_bank_auth_token()} will throw an error if the token hasn't been set up.
+\code{get_up_bank_auth_token()} will display a warning if the token hasn't been set up.
 }

@@ -4,10 +4,10 @@
 \alias{json_decoder}
 \title{Decode Json}
 \usage{
-json_decoder(res)
+json_decoder(resp_list, spec, formatter)
 }
 \arguments{
-\item{res}{response from the up bank API}
+\item{resp}{response from the up bank API}
 }
 \value{
 tibble containing the contents of the response json.

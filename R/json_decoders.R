@@ -2,110 +2,42 @@
 #'
 #'  These functions decode the response json from a range of Up Bank API end points. It uses S3 to determine which decoder to use.
 #'
-#' @param res response from the up bank API
+#' @param resp response from the up bank API
 #'
 #' @return tibble containing the contents of the response json.
-json_decoder <- function(res) {
-  UseMethod("json_decoder")
+json_decoder <- function(resp_list, spec, formatter) {
+  resp_list |>
+    purrr::map(
+      \(x)
+      httr2::resp_body_json(x) |>
+        tibblify::tibblify(
+          spec = spec
+        )
+    ) |>
+    dplyr::bind_rows() |>
+    formatter()
 }
 
-#' @exportS3Method readUpBank::json_decoder
-json_decoder.accounts <- function(res) {
-  json_data <- httr2::resp_body_json(res)$data
 
-  flatten_json <- tibble::tibble(!!!1:11, .rows = 0)
-
-  if (length(json_data) > 1) {
-    flatten_json <-
-      purrr::map(
-        json_data,
-        \(x)  purrr::list_flatten(x) |>
-          purrr::list_flatten() |>
-          purrr::list_flatten() |>
-          tibble::as_tibble()
-      ) |>
-      purrr::list_rbind()
-  }
-
-  flatten_json |>
-    format_accounts_tibble()
+raw_formatter <- function(processed_resp) {
+  processed_resp
 }
 
-#' @exportS3Method readUpBank::json_decoder
-json_decoder.accounts_id <- function(res) {
-  json_data <- httr2::resp_body_json(res)$data
 
-  flatten_json <- tibble::tibble(!!!1:11, .rows = 0)
-
-  if (length(json_data) > 1) {
-    flatten_json <-
-      httr2::resp_body_json(res)$data |>
-      purrr::list_flatten() |>
-      purrr::list_flatten() |>
-      purrr::list_flatten() |>
-      tibble::as_tibble()
-  }
-
-  flatten_json |>
-    format_accounts_tibble()
-}
-
-format_accounts_tibble <- function(processed_json) {
-  var_names <- c(
-    "type", "account_id", "account_name", "account_type",
-    "account_ownership_type", "account_balance_currency",
-    "account_balance_value", "account_balance_value_base_units",
-    "account_created_at", "link_to_transactions", "link_to_self"
-  )
-
-  var_datatimes <- c("account_created_at")
-  var_with_timezone <- "Australia/Sydney"
-
-  var_numeric <- c(
-    "account_balance_value",
-    "account_balance_value_base_units"
-  )
-
-  var_to_drop <- c("link_to_transactions", "link_to_self")
-
-  processed_json |>
-    stats::setNames(var_names) |>
+standard_transaction_formatter <- function(processed_resp) {
+  processed_resp |>
+    dplyr::select("data") |>
+    tidyr::unnest("data") |>
+    tidyr::unnest(c("attributes", "relationships")) |>
+    tidyr::unnest(c("amount", "foreignAmount", "cardPurchaseMethod", "account", "transferAccount"), names_sep = "_") |>
+    tidyr::unnest(c("account_data", "transferAccount_data", "account_links", "transferAccount_links"), names_sep = "_") |>
+    tidyr::unnest(c("status", "note", "performingCustomer", "links", "cardPurchaseMethod_method")) |>
     dplyr::mutate(
       dplyr::across(
-        dplyr::all_of(var_datatimes),
-        \(x) lubridate::as_datetime(x) |> lubridate::with_tz(var_with_timezone)
+        tidyr::all_of(c("settledAt", "createdAt")),
+        \(x) lubridate::as_datetime(x) |> lubridate::with_tz("Australia/Sydney")
       ),
-      dplyr::across(
-        dplyr::all_of(var_numeric),
-        as.numeric
-      )
-    ) |>
-    dplyr::select(-dplyr::all_of(var_to_drop))
-}
-
-
-#' @exportS3Method readUpBank::json_decoder
-json_decoder.transactions <- function(res) {
-  json_data <- httr2::resp_body_json(res)$data
-
-  flatten_json <- tibble::tibble(!!!1:11, .rows = 0)
-
-  if (length(json_data) > 1) {
-    flatten_json <-
-      purrr::map(
-        json_data,
-        \(x)  purrr::list_flatten(x) |>
-          purrr::list_flatten() |>
-          purrr::list_flatten() |>
-          dplyr::bind_cols()
-      ) |>
-      purrr::list_rbind()
-  }
-
-  flatten_json |>
-    format_transactions_tibble()
-}
-
-format_transactions_tibble <- function(processed_json) {
-
+      status = factor(status, levels = c("HELD", "SETTLED")),
+      cardPurchaseMethod_method = factor(cardPurchaseMethod_method, levels = c("BAR_CODE", "OCR", "CARD_PIN", "CARD_DETAILS", "CARD_ON_FILE", "ECOMMERCE", "MAGNETIC_STRIPE", "CONTACTLESS"))
+    )
 }

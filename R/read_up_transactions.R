@@ -9,7 +9,7 @@
 #'
 #' @return
 #' @export
-read_up_transactions <- function(transaction_id = NULL, status = c("HELD", "SETTLED"), since = NULL, until = NULL, category = NULL, tag = NULL) {
+read_up_transactions <- function(transaction_id = NULL, status = c("HELD", "SETTLED"), since = NULL, until = NULL, category = NULL, tag = NULL, formatter = "simple") {
   stopifnot("transaction_id must be NULL or a character of length 1" = missing(transaction_id) || is.character(transaction_id) && length(transaction_id) == 1)
   stopifnot("category must be NULL or a character of length 1" = missing(category) || is.character(category) && length(category) == 1)
   stopifnot("tag must be NULL or a character of length 1" = missing(tag) || is.character(tag) && length(tag) == 1)
@@ -19,10 +19,13 @@ read_up_transactions <- function(transaction_id = NULL, status = c("HELD", "SETT
   }
 
   req <- get_base_request() |>
-    add_path_to_req("transactions")
+    httr2::req_url_path_append("transactions")
+
+  endpoint <- "/transactions"
 
   if (!missing(transaction_id)) {
-    req <- add_path_to_req(req, transaction_id, "transaction_id")
+    req <- httr2::req_url_path_append(req, transaction_id)
+    endpoint <- "/transactions/{id}"
   }
 
   if (!missing(status)) {
@@ -39,6 +42,18 @@ read_up_transactions <- function(transaction_id = NULL, status = c("HELD", "SETT
 
   cli::cli_progress_step("Loading transactions from Up Bank API")
 
+  spec <- api_specs |>
+    dplyr::filter(
+      endpoint == endpoint,
+      operation == "get"
+    ) |>
+    dplyr::pull(spec) |>
+    _[[1]]
+
   query_up_api(req) |>
-    process_response()
+    process_response() |>
+    json_decoder(
+      spec = spec,
+      formatter = standard_transaction_formatter
+    )
 }

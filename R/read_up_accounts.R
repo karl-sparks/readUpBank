@@ -9,7 +9,7 @@
 #' @return `tibble::tibble()` containing the requested accounts data
 #' @export
 read_up_accounts <- function(account_id = NULL, account_type = c("SAVER", "TRANSACTIONAL", "HOME_LOAN"), ownership_type = c("INDIVIDUAL", "JOINT")) {
-  stopifnot("account_id must be NULL or a character of length 1 (only able to filter on single ID)" = missing(account_id) || is.character(account_id) && length(account_id) == 1)
+  stopifnot("account_id must be NULL or a character of length 1 (only able to filter on single ID)" = is.null(account_id) || is.character(account_id) && length(account_id) == 1)
 
   if (!missing(account_type)) {
     account_type <- rlang::arg_match(account_type)
